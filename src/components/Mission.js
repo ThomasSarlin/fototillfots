@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import * as firebase from 'firebase'
-import {ImageFromStorage} from 'react-firebase-storage-connector'
 
 export default class Mission extends Component {
     constructor(props){

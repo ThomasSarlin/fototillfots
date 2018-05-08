@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as firebase from 'firebase'
-import { ImageFromStorage } from 'react-firebase-storage-connector'
 import Paper from 'material-ui/Paper'
 import Image from './Image'
 

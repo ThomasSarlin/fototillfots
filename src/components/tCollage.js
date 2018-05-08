@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as firebase from 'firebase'
-import { ImageFromStorage } from 'react-firebase-storage-connector'
 import Paper from 'material-ui/Paper'
 import Image from './Image'
 
@@ -11,7 +10,10 @@ const card = {
   display: 'inline-block',
   fontFamily: 'Tajawal'
 }
-
+const image = {
+  height: 200,
+  padding: 10
+}
 class Collage extends Component {
 
   constructor(props) {
@@ -40,15 +42,11 @@ class Collage extends Component {
   render() {
     return (
       this.state.images.map(function (e) {
-
         return (
             <Paper style={card} zDepth={5}>
-              <h1>{e.mission}</h1>
-              <Image image={e.imgUrl} />
-              <p>{e.body}</p>
+              <Image image={e.imgUrl} style={image}/>
             </Paper>
         )
-
       }));
   }
 }

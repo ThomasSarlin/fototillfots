@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import * as firebase from 'firebase';
 import TextField from "material-ui/TextField";
 import TeacherPage from "./TeacherPage"
+import mainLogo from '../logo.svg'
+let logo = {
+    width: '60vw',
+    marginLeft: '4vw'
+}
 
 let sBtnStyle = {
     width: '60vw',
@@ -15,7 +20,10 @@ let sDivStyle = {
     width: '60vw',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: '40vh'
+    marginTop: '20vh'
+}
+let header = {
+    marginBottom:'-2vh'
 }
 
 export default class StudentLogin extends Component {
@@ -60,7 +68,7 @@ export default class StudentLogin extends Component {
         let name = this.state.name
         let animal = this.state.animal
         this.state.teachers.forEach(function (e) {
-            if (e.name == name && e.animal == animal) {
+            if (e.name === name && e.animal === animal) {
                 result = true;
             };
         });
@@ -84,7 +92,7 @@ export default class StudentLogin extends Component {
     }
     handleSubmit(event) {
         event.preventDefault();
-        if (this.state.name == '' || this.state.class == '') {
+        if (this.state.name === '' || this.state.class === '') {
             this.setState({
                 message: 'du har inte fyllt i alla fält'
             });
@@ -104,7 +112,10 @@ export default class StudentLogin extends Component {
     form() {
         return (
             <div style={sDivStyle}>
+                
+                <img src={mainLogo} style={logo} alt="logo" />
                 <form onSubmit={this.handleSubmit}>
+                    <h4 style={header}>Inloggning lärare</h4>
                     <TextField
                         style={sBtnStyle}
                         hintText="Användarnamn"
@@ -117,7 +128,8 @@ export default class StudentLogin extends Component {
                         onChange={this.handleAnimalChange}
                         value={this.state.animal}
                     />
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Logga in" />
+                    <button onClick={this.props.onBack}>Tillbakas</button>
                 </form>
                 <p>{this.state.message ? this.state.message : ""}</p>
             </div>);

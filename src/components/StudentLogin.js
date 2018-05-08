@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import * as firebase from 'firebase';
 import TextField from "material-ui/TextField";
 import StudentPage from "./StudentPage"
+import mainLogo from '../logo.svg'
+let logo = {
+    width: '60vw',
+    marginLeft: '4vw'
+}
 let sBtnStyle = {
     width: '60vw',
     marginTop: '2vh',
@@ -14,7 +19,10 @@ let sDivStyle = {
     width: '60vw',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: '40vh'
+    marginTop: '20vh'
+}
+let header = {
+    marginBottom: '-2vh'
 }
 
 export default class StudentLogin extends Component {
@@ -23,60 +31,60 @@ export default class StudentLogin extends Component {
         this.state = {
             name: '',
             classes: '',
-            students:'',
-            class:'',
-            teacher:'',
-            message:'',
-            loggedIn:''
+            students: '',
+            class: '',
+            teacher: '',
+            message: '',
+            loggedIn: ''
         }
-        
+
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleClassChange = this.handleClassChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.checkClass = this.checkClass.bind(this);
-        this.componentDidMount=this.componentDidMount.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         let rootRef = firebase.database().ref().child('class')
         rootRef.on("value", snap => {
-            let data =[]
-            snap.forEach(ss => {data.push(ss.val())})
+            let data = []
+            snap.forEach(ss => { data.push(ss.val()) })
             this.setState({
-                classes:data
+                classes: data
             });
         })
         rootRef = firebase.database().ref().child('student')
         rootRef.on("value", snap => {
-            let data =[]
-            snap.forEach(ss => {data.push(ss.val())})
+            let data = []
+            snap.forEach(ss => { data.push(ss.val()) })
             this.setState({
-                students:data
+                students: data
             });
         })
     }
     checkStudent() {
         let result = false;
-        let test=this.state.students;
-        this.state.classes.forEach(function(e){
-            if(e.name==test){
-                result=true;
+        let test = this.state.students;
+        this.state.classes.forEach(function (e) {
+            if (e.name === test) {
+                result = true;
             };
         });
         return result;
     }
     checkClass() {
-        let result=false;
-        let teacher='';
-        let test=this.state.class;
-        this.state.classes.forEach(function(e){
-            if(e.name==test){
-                result=true;
-                teacher=e.teacher;
+        let result = false;
+        let teacher = '';
+        let test = this.state.class;
+        this.state.classes.forEach(function (e) {
+            if (e.name === test) {
+                result = true;
+                teacher = e.teacher;
             };
         });
         this.setState({
-            teacher:teacher
+            teacher: teacher
         })
         return result;
     }
@@ -98,31 +106,33 @@ export default class StudentLogin extends Component {
     }
     handleSubmit(event) {
         event.preventDefault();
-        if(this.state.name==''||this.state.class==''){
+        if (this.state.name === '' || this.state.class === '') {
             this.setState({
-                message:'du har inte fyllt i alla fält'
+                message: 'du har inte fyllt i alla fält'
             });
-        }else{
-            if(!this.checkClass()){
+        } else {
+            if (!this.checkClass()) {
                 this.setState({
-                    message:'klassen du angivit finns inte'
+                    message: 'klassen du angivit finns inte'
                 });
-            }else{
-                if(!this.checkStudent()){
+            } else {
+                if (!this.checkStudent()) {
                     this.addStudent()
                 }
                 this.setState({
-                    message:'',
-                    loggedIn:true
+                    message: '',
+                    loggedIn: true
                 });
             }
         }
 
     }
-    form(){
+    form() {
         return (
             <div style={sDivStyle}>
+                <img src={mainLogo} style={logo} alt="logo" />
                 <form onSubmit={this.handleSubmit}>
+                    <h4 style={header}>Inloggning elev</h4>
                     <TextField
                         style={sBtnStyle}
                         hintText="Användarnamn"
@@ -135,16 +145,17 @@ export default class StudentLogin extends Component {
                         onChange={this.handleClassChange}
                         value={this.state.class}
                     />
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Logga in" />
+                    <button onClick={this.props.onBack}>Tillbakas</button>
                 </form>
-                <p>{this.state.message?this.state.message:""}</p>
+                <p>{this.state.message ? this.state.message : ""}</p>
             </div>);
     }
-    studentPage(){return(<StudentPage name={this.state.name} teacher={this.state.teacher} class={this.state.class}/>)}
+    studentPage() { return (<StudentPage name={this.state.name} teacher={this.state.teacher} class={this.state.class} />) }
     render() {
-        return(
+        return (
             <div>
-                {this.state.loggedIn?this.studentPage():this.form()}
+                {this.state.loggedIn ? this.studentPage() : this.form()}
             </div>
         );
     }

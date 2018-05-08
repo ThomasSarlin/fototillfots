@@ -2,18 +2,13 @@ import React, { Component } from 'react';
 import * as firebase from 'firebase';
 import AppBar from 'material-ui/AppBar';
 import Button from 'material-ui/FlatButton'
-import FontIcon from 'material-ui/FontIcon';
-import PhotoAlbum from 'material-ui/svg-icons/image/photo-album';
-import FeedBack from 'material-ui/svg-icons/action/feedback';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from "material-ui/TextField";
-import Collage from './Collage'
-import Mission from './Mission'
-import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
+import { Card, CardHeader, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import Upload from './Upload'
 import TCollage from './tCollage'
+import Newclass from './nCpop'
 const filler = {
     height: 20
 }
@@ -23,7 +18,6 @@ const content = {
     textAlign: 'center',
     fontFamily: 'Tajawal'
 }
-const missionBtn = {}
 const appbar = {
     backgroundColor: '#aaaaaa'
 }
@@ -51,7 +45,9 @@ export default class TeacherPage extends Component {
             classes: undefined,
             viewName: '',
             missions: undefined,
-            images:undefined
+            images: undefined,
+            showAddNewClass: false,
+            open:false
         }
     }
     checkTeacher() {
@@ -60,7 +56,7 @@ export default class TeacherPage extends Component {
         rootRef.on("value", snap => {
 
             snap.forEach(ss => {
-                if (ss.child('name').val() == this.state.name) {
+                if (ss.child('name').val() === this.state.name) {
                     result = true;
                 }
             })
@@ -72,7 +68,7 @@ export default class TeacherPage extends Component {
         let result = false;
         rootRef.on("value", snap => {
             snap.forEach(ss => {
-                if (ss.child('title').val() == this.state.missionTitle && ss.child('teacher').val == this.state.teacher) {
+                if (ss.child('title').val() === this.state.missionTitle && ss.child('teacher').val === this.state.teacher) {
                     result = true;
                 }
             })
@@ -84,7 +80,7 @@ export default class TeacherPage extends Component {
         let result = false;
         rootRef.on("value", snap => {
             snap.forEach(ss => {
-                if (ss.child('class').val() == this.state.className) {
+                if (ss.child('class').val() === this.state.className) {
                     result = true;
                 }
             })
@@ -94,12 +90,6 @@ export default class TeacherPage extends Component {
     addTeacher() {
         firebase.database().ref().child('teacher').push({
             name: this.state.name
-        });
-    }
-    addClass() {
-        firebase.database().ref().child('class').push({
-            name: this.state.className,
-            teacher: this.state.name
         });
     }
     addMission(event) {
@@ -113,11 +103,11 @@ export default class TeacherPage extends Component {
         });
         this.setState({ message: 'Uppdrag tillagt' })
     }
-    deleteMission(title){
+    deleteMission(title) {
         let rootRef = firebase.database().ref().child('mission')
         rootRef.on("value", snap => {
             snap.forEach(ss => {
-                if (ss.child('animal').val() === this.state.animal && ss.child('teacher').val() === this.state.name && ss.child('title').val()===title) {
+                if (ss.child('animal').val() === this.state.animal && ss.child('teacher').val() === this.state.name && ss.child('title').val() === title) {
                     firebase.database().ref().child('mission').child(ss.key).remove();
                 }
             })
@@ -140,14 +130,14 @@ export default class TeacherPage extends Component {
         rootRef = firebase.database().ref().child('imageurl')
         rootRef.on("value", snap => {
             let data = []
-            snap.forEach(ss => { if (ss.child('student').val() == this.state.name) data.push(ss.val()) })
+            snap.forEach(ss => { if (ss.child('student').val() === this.state.name) data.push(ss.val()) })
             this.setState({
                 images: data
             });
         })
         this.getMissions();
     }
-    getMissions(){
+    getMissions() {
         let rootRef = firebase.database().ref().child('mission')
         rootRef.on("value", snap => {
             let data = [];
@@ -185,6 +175,16 @@ export default class TeacherPage extends Component {
             missionBody: event.target.value
         });
     }
+    handleClose() {
+        window.location.reload();
+    }
+    
+    toggleDrawer = () => this.setState({ open: !this.state.open });
+    togglePopup() {
+        this.setState({
+            showAddNewClass: !this.state.showAddNewClass
+        })
+    }
     render() {
         if (this.state.teacherpage) {
             return (
@@ -204,8 +204,13 @@ export default class TeacherPage extends Component {
                     {this.state.classes ? this.state.classes.map((e) => {
                         return <Button key={e.name} label={e.name} style={mainButton} onClick={() => this.changeView(e.name)} />
                     }) : ""}
-                    <Button label="Lägg till klass" style={mainButton} />
+                    <Button label="Lägg till klass" style={mainButton} onClick={this.togglePopup.bind(this)} />
                     <p>{this.state.message}</p>
+                    {this.state.showAddNewClass ?
+                        <Newclass
+                            animal={this.state.animal}
+                            name={this.state.name}
+                            closefunction={this.togglePopup.bind(this)} /> : ""}
                 </div>
             );
         } else if (this.state.addClass) {
@@ -241,8 +246,8 @@ export default class TeacherPage extends Component {
                                     <CardText expandable={true}>
                                         {e.body}
                                         <div style={filler}></div><div>
-                                        <button onClick={() => this.deleteMission(e.title)}>Ta bort uppdrag</button></div>
-                                        <TCollage mission={e.title} className={this.state.viewName}/>
+                                            <button onClick={() => this.deleteMission(e.title)}>Ta bort uppdrag</button></div>
+                                        <TCollage mission={e.title} className={this.state.viewName} />
                                     </CardText>
                                 </Card>
                             )

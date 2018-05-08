@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import Collage from './components/Collage'
-import Upload from './components/Upload'
 import { BrowserView, MobileView, isBrowser, isMobile } from "react-device-detect";
 import MobileApp from './components/MobileApp'
 import TeacherLogin from './components/TeacherLogin'
@@ -20,7 +18,7 @@ class App extends Component {
       <div style={taj}>
         <BrowserView device={isBrowser}>
           <div>
-            <TeacherLogin/>
+            <TeacherLogin isBrowser={true}/>
           </div>
         </BrowserView>
         <MobileView device={isMobile}>

@@ -2,16 +2,18 @@ import React, { Component } from 'react';
 import * as firebase from 'firebase';
 import AppBar from 'material-ui/AppBar';
 import Button from 'material-ui/FlatButton'
-import FontIcon from 'material-ui/FontIcon';
-import PhotoAlbum from 'material-ui/svg-icons/image/photo-album';
-import FeedBack from 'material-ui/svg-icons/action/feedback';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import Collage from './Collage'
-import Mission from './Mission'
-import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
+import { Card, CardHeader, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import Upload from './Upload'
+import Image from './Image'
+
+const image = {
+    width: '80vw',
+    padding: 10
+}
 const mainButton = {
     width: '50vw',
     marginBottom: 0,
@@ -28,7 +30,6 @@ const content = {
     height: '35vh',
     textAlign: 'center'
 }
-const missionBtn = {}
 const appbar = {
     backgroundColor: '#aaaaaa'
 }
@@ -37,6 +38,10 @@ const filler = {
 }
 const info = {
     color: '#55aa55'
+}
+
+const deleteInfo = {
+    color: '#aa5555'
 }
 export default class StudentPage extends Component {
     constructor(props) {
@@ -71,7 +76,7 @@ export default class StudentPage extends Component {
         rootRef.on("value", snap => {
             let data = []
             snap.forEach(ss => {
-                if(ss.child('class').val()===this.props.class)
+                if (ss.child('class').val() === this.props.class)
                     data.push(ss.val())
             })
             this.setState({
@@ -79,13 +84,28 @@ export default class StudentPage extends Component {
             });
         })
         rootRef = firebase.database().ref().child('imageurl')
+        console.log(rootRef)
         rootRef.on("value", snap => {
             let data = []
-            snap.forEach(ss => { if (ss.child('student').val() == this.state.name) data.push(ss.val()) })
+            snap.forEach(ss => { if (ss.child('student').val() === this.state.name) data.push(ss.val()) })
             this.setState({
                 images: data
             });
         })
+    }
+    deleteImage(mission,imgUrl) {
+        console.log(imgUrl)
+        let rootRef = firebase.database().ref().child('imageurl');
+        let rmKey=''
+        rootRef.orderByChild('student').equalTo(this.state.name).on("value",snap=>{
+            snap.forEach(ss=>{if(ss.child('mission').val()===mission)rmKey=ss.key})
+        })
+        if(rmKey!==''){
+            rootRef.child(rmKey).remove();
+            firebase.storage()
+                .ref()
+                .child(imgUrl).delete().then(console.log("Image removed")).catch(err=>console.log(err))
+        }
     }
     closeView() {
         this.setState({
@@ -98,6 +118,7 @@ export default class StudentPage extends Component {
 
     hasUploaded(title) {
         let result = false;
+        console.log(this.state.images)
         this.state.images.forEach((e) => {
 
             if (e.mission === title)
@@ -105,7 +126,17 @@ export default class StudentPage extends Component {
         })
         return result;
     }
-
+    getUpload(title) {
+        let result = '';
+        this.state.images.forEach((e) => {
+            if (e.mission === title)
+                result = e.imgUrl;
+        })
+        return result;
+    }
+    handleClose(){
+        window.location.reload();
+    }
     render() {
         if (this.state.studentpage) {
             return (
@@ -128,7 +159,7 @@ export default class StudentPage extends Component {
                     <Button label="Mitt rum" style={mainButton} disabled={true} />
                     <Button label="Mina uppdrag" style={mainButton} onClick={this.missionToggle.bind(this)} />
                     <Button label="Mina utmärkelser" style={mainButton} disabled={true} />
-                    <Button label="Mitt album" style={mainButton} onClick={this.albumToggle.bind(this)} />
+                    <Button label="Mitt album" style={mainButton} disabled={true} onClick={this.albumToggle.bind(this)} />
                 </div>
             );
         } else if (this.state.missionPage) {
@@ -160,7 +191,12 @@ export default class StudentPage extends Component {
                                 <CardText expandable={true}>
                                     {e.body}
                                     <div style={filler}></div>
-                                    {this.hasUploaded(e.title) ? (<p style={info}>Du har lämnat in denna uppgift</p>) :
+                                    {this.hasUploaded(e.title) ?
+                                        (<div>
+                                            <Image image={this.getUpload(e.title)} style={image} />
+                                            <p style={info}>Du har lämnat in denna uppgift</p>
+                                            <a style={deleteInfo} onClick={() => this.deleteImage(e.title,this.getUpload(e.title))}>Ta bort inlämning</a>
+                                        </div>) :
                                         <Upload
                                             class={e.class}
                                             student={this.state.name}

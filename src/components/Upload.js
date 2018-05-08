@@ -1,9 +1,11 @@
 import React from 'react'
-import axios, { post } from 'axios';
 import * as firebase from 'firebase';
-import TextField from "material-ui/TextField";
+import Image from "./Image"
 
 var metadata = { contentType: 'image/jpeg' };
+const inputfile = {
+    color: 'transparent'
+}
 export default class Upload extends React.Component {
 
     constructor(props) {
@@ -12,22 +14,15 @@ export default class Upload extends React.Component {
             file: null,
             message: '',
             body: '',
+            imgUrl: '',
             uploaded: false
         }
-        this.onFormSubmit = this.onFormSubmit.bind(this)
         this.onChange = this.onChange.bind(this)
         this.fileUpload = this.fileUpload.bind(this)
     }
-    onFormSubmit(e) {
-        e.preventDefault() // Stop form submit
-    }
     onChange(e) {
-        this.setState({ file: e.target.files[0], uploaded: true,message:"Laddar upp filen" },
+        this.setState({ file: e.target.files[0], uploaded: true, message: "Laddar upp filen" },
             this.fileUpload(e.target.files[0]))
-    }
-
-    handleBodyChange(e) {
-        this.setState({ body: e.target.value })
     }
     checkUpload(fileUrl, className, student, mission) {
         let result = true
@@ -46,9 +41,8 @@ export default class Upload extends React.Component {
         let body = this.state.body;
         let mission = this.props.mission;
         if (!this.checkUpload(fileUrl, className, student, mission)) {
-            this.setState({ message: 'Du har lämnat in denna uppgift' })
+            this.setState({ message: 'Du har lämnat in denna uppgift'})
         } else {
-
             var storageRef = firebase.storage().ref();
             let uploadTask = storageRef.child(fileUrl).put(file, metadata);
 
@@ -96,14 +90,14 @@ export default class Upload extends React.Component {
     render() {
         if (!this.state.uploaded) {
             return (
-                <form onSubmit={this.onFormSubmit.bind(this)}>
-                    <input type="file" onChange={this.onChange} />
-                </form>
-                
-        )
-        }else{
-            return(
-            <p>{this.state.message}</p>)
+                <input style={inputfile} title="" type="file" onChange={this.onChange} accept="image/x-png,image/gif,image/jpeg" />
+            )
+        } else {
+            return (
+                <div>
+                    {this.state.imgUrl?<Image image={this.state.imgUrl}/>:""} 
+                    <p>{this.state.message}</p>
+                </div>)
         }
     }
 }
