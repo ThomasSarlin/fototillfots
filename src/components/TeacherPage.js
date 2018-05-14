@@ -47,7 +47,7 @@ export default class TeacherPage extends Component {
             missions: undefined,
             images: undefined,
             showAddNewClass: false,
-            open:false
+            open: false
         }
     }
     checkTeacher() {
@@ -101,7 +101,9 @@ export default class TeacherPage extends Component {
             teacher: this.state.name,
             animal: this.state.animal
         });
-        this.setState({ message: 'Uppdrag tillagt' })
+        this.setState({
+            message: 'Uppdrag tillagt', missionTitle: '', missionBody: ''
+        })
     }
     deleteMission(title) {
         let rootRef = firebase.database().ref().child('mission')
@@ -178,7 +180,7 @@ export default class TeacherPage extends Component {
     handleClose() {
         window.location.reload();
     }
-    
+
     toggleDrawer = () => this.setState({ open: !this.state.open });
     togglePopup() {
         this.setState({
